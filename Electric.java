@@ -3,15 +3,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-public class electric {
+public class ElectricVehicleParking {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
         // VARIABLES
         double parkingPrice, chargingRate;
-        String name, cartype, motorcycletype, platenumber, vehicletype;
+        String name, platenumber;
         LocalDateTime timeIn = null, timeOut = null, startChargingTime = null, stopChargingTime = null;
-        boolean isCharging = false;
 
         System.out.println("Input name user");
         name = input.next();
@@ -24,64 +23,99 @@ public class electric {
         int choicetype = input.nextInt();
 
         switch (choicetype) {
-            // ... (same as before)
+            case 1:
+                System.out.println("You chose an Electric Car.");
+                System.out.println("Input plate number");
+                platenumber = input.next();
+                parkingPrice = 5000.00; // Adjust parking price for electric cars
+                chargingRate = 1000.00; // Adjust charging rate for electric cars
+                break;
+
+            case 2:
+                System.out.println("You chose an Electric Motorcycle.");
+                System.out.println("Input plate number");
+                platenumber = input.next();
+                parkingPrice = 2000.00; // Adjust parking price for electric motorcycles
+                chargingRate = 500.00; // Adjust charging rate for electric motorcycles
+                break;
+
+            default:
+                System.out.println("Invalid choice. Please choose 1 for Electric Car or 2 for Electric Motorcycle.");
+                return;
         }
 
         while (true) {
-            System.out.println("Press '1' to record time in, '2' to record time out, '3' to start charging, '4' to stop charging, '5' to calculate cost, '6' to park only, or '0' to exit.");
+            System.out.println("Press '1' to record time in, '2' to record time out, '3' to start charging, '4' to stop charging, '5' to calculate cost, or '0' to exit.");
             System.out.print("Enter your choice: ");
             int choice = input.nextInt();
             input.nextLine(); // Consume the newline character
 
             switch (choice) {
                 case 1:
-                    if (isCharging) {
-                        System.out.println("Stop charging before recording time in.");
-                        break;
-                    }
                     timeIn = LocalDateTime.now();
                     System.out.println("Time in recorded: " + formatDateTime(timeIn));
                     break;
                 case 2:
-                    if (isCharging) {
-                        System.out.println("Stop charging before recording time out.");
-                        break;
+                    if (timeIn == null) {
+                        System.out.println("Please record time in first.");
+                    } else {
+                        timeOut = LocalDateTime.now();
+                        System.out.println("Time out recorded: " + formatDateTime(timeOut));
                     }
-                    timeOut = LocalDateTime.now();
-                    System.out.println("Time out recorded: " + formatDateTime(timeOut));
                     break;
                 case 3:
-                    if (isCharging) {
-                        System.out.println("Charging is already in progress.");
-                    } else {
-                        startChargingTime = LocalDateTime.now();
-                        System.out.println("Charging started at: " + formatDateTime(startChargingTime));
-                        isCharging = true;
+                    if (timeIn == null) {
+                        timeIn = LocalDateTime.now();
+                        System.out.println("Time in recorded: " + formatDateTime(timeIn));
                     }
+                    startChargingTime = LocalDateTime.now();
+                    System.out.println("Charging started at: " + formatDateTime(startChargingTime));
                     break;
                 case 4:
-                    if (!isCharging) {
-                        System.out.println("Charging is not in progress.");
-                    } else {
-                        stopChargingTime = LocalDateTime.now();
+                    if (startChargingTime != null) {
+                        stopChargingTime = LocalDateTime.now ();
                         System.out.println("Charging stopped at: " + formatDateTime(stopChargingTime));
-                        isCharging = false;
+                    } else {
+                        System.out.println("Please start charging first.");
                     }
                     break;
                 case 5:
-                    // ... (same as before)
-                case 6:
-                    // ... (same as before)
-                case 0:
-                    if (isCharging) {
-                        stopChargingTime = LocalDateTime.now();
-                        System.out.println("Charging stopped at: " + formatDateTime(stopChargingTime));
-                        isCharging = false;
+                   if (timeIn != null && timeOut != null) {
+                        long parkingDurationMinutes = calculateDurationMinutes(timeIn, timeOut);
+                        double parkingCost = calculateCost(parkingDurationMinutes, parkingPrice);
+
+                        double totalCost = parkingCost;
+
+                        if (startChargingTime != null && stopChargingTime != null) {
+                            long chargingDurationMinutes = calculateDurationMinutes(startChargingTime, stopChargingTime);
+                            double chargingCost = calculateCost(chargingDurationMinutes, chargingRate);
+                            totalCost += chargingCost;
+                        }
+
+                        if (hasMembership.equalsIgnoreCase("yes")) {
+                            double discount = totalCost * 0.10; // 10% discount
+                            totalCost -= discount;
+                        }
+
+                         System.out.println("========================================================");
+                        System.out.println("Parking Duration: " + parkingDurationMinutes + " minutes");
+                        System.out.println("Parking Cost: Rp" + parkingCost);
+                        System.out.println("Charging Duration: " + chargingDurationMinutes + " minutes");
+                        System.out.println("Charging Cost: Rp" + chargingCost);
+                        System.out.println("========================================================");
+
+                        }
+                        System.out.println("Total Cost: Rp" + totalCost);
+                        System.out.println("========================================================");
+                    } else {
+                        System.out.println("Please record time in and time out first.");
                     }
+                    break;
+                case 0:
                     System.out.println("Exiting the program.");
                     System.exit(0);
                 default:
-                    System.out.println("Invalid choice. Please enter '1', '2', '3', '4', '5', '6', or '0'.");
+                    System.out.println("Invalid choice. Please enter '1', '2', '3', '4', '5', or '0'.");
                     break;
             }
         }
